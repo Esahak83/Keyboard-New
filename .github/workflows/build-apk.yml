@@ -1,0 +1,39 @@
+name: Build Ridmik Studio Android APK
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract ZIP if uploaded directly
+        run: |
+          if [ -f "Ridmik-Studio-Keyboard-Android.zip" ]; then
+            unzip -o Ridmik-Studio-Keyboard-Android.zip
+          fi
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle 8.7
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Build Debug APK
+        run: gradle assembleDebug --no-daemon
+
+      - name: Upload Ridmik Studio APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ridmik-Studio-Keyboard-APK
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
